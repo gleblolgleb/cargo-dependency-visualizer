@@ -1,0 +1,7 @@
+{
+  "package": "serde",
+  "repository": "https://index.crates.io",
+  "test_mode": false,
+  "version": "1.0.210",
+  "output": "dependencies.svg"
+}
