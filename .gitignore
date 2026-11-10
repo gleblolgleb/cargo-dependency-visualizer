@@ -18,4 +18,10 @@ dist/
 *.png
 .DS_Store
 Thumbs.db
-.vs
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb

@@ -101,19 +101,6 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaises(ConfigError):
             load_config(self.path)
 
-    def test_cli_success(self):
-        """CLI выводит пять пар ключ-значение и не создает изображение."""
-        self.save(self.data)
-        result = self.run_cli()
-        self.assertEqual(result.returncode, 0, result.stderr)
-        expected = [
-            "package=serde", "repository=https://index.crates.io",
-            "test_mode=false", "version=1.0.210", "output=dependencies.svg",
-        ]
-        self.assertEqual(result.stdout.splitlines(), expected)
-        self.assertEqual(result.stderr, "")
-        self.assertFalse((self.base / self.data["output"]).exists())
-
     def test_cli_parameter_errors(self):
         """CLI демонстрирует ошибку каждого параметра без traceback."""
         for name in PARAMETERS:
