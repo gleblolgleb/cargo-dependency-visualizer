@@ -1,0 +1,7 @@
+{
+  "package": "C",
+  "repository": "repository.json",
+  "test_mode": true,
+  "version": "1.0.0",
+  "output": "../demonstration/C.svg"
+}

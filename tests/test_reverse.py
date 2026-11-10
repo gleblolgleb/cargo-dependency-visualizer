@@ -8,6 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from cli_support import run_app
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -67,7 +69,7 @@ class ReverseTests(unittest.TestCase):
         self.assertEqual(result, list(reversed(range(count))))
 
     def test_cli_examples(self):
-        """Проверить пять случаев через CLI из другого каталога."""
+        """Конфигурации режима только этапа 4 явно отклоняются."""
         cases = {"chain": ("C", ["B", "A"]),
                  "diamond": ("D", ["B", "A", "C"]),
                  "cycle": ("A", ["C", "B"]),
@@ -77,16 +79,15 @@ class ReverseTests(unittest.TestCase):
             for name, (target, nodes) in cases.items():
                 with self.subTest(name=name):
                     config = ROOT / "examples" / f"reverse-{name}-config.json"
-                    result = subprocess.run(
+                    result = run_app(
                         [sys.executable, str(ROOT / "src/main.py"),
                          str(config)], cwd=directory, capture_output=True,
                         text=True, encoding="utf-8",
                         env=dict(os.environ, PYTHONIOENCODING="utf-8"),
                     )
-                    self.assertEqual(result.returncode, 0, result.stderr)
-                    self.assertEqual(result.stdout.splitlines(),
-                                     [f"Обратные зависимости {target}:"]
-                                     + nodes)
+                    self.assertEqual(result.returncode, 2)
+                    self.assertEqual(result.stdout, "")
+                    self.assertIn("reverse_package", result.stderr)
 
 
 if __name__ == "__main__":

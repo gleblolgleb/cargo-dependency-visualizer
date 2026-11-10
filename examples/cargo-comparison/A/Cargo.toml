@@ -1,0 +1,8 @@
+[package]
+name = "A"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+B = { path = "../B", version = "1.0.0" }
+C = { path = "../C", version = "1.0.0" }

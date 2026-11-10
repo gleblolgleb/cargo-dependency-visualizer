@@ -8,6 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from cli_support import run_app
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -61,7 +63,7 @@ class ExampleTests(unittest.TestCase):
 
     def run_config(self, path, directory):
         """Запустить приложение из произвольного рабочего каталога."""
-        return subprocess.run(
+        return run_app(
             [sys.executable, str(ROOT / "src/main.py"), str(path)],
             cwd=directory, capture_output=True, text=True, encoding="utf-8",
             env=dict(os.environ, PYTHONIOENCODING="utf-8"),

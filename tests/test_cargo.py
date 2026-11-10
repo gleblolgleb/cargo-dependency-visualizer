@@ -10,6 +10,8 @@ import unittest
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+
+from cli_support import run_app
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -112,7 +114,7 @@ class CargoTests(unittest.TestCase):
         config = dict(package="demo", repository=self.url, test_mode=False,
                       version="1.0.0", output="graph.svg")
         path.write_text(json.dumps(config), "utf-8")
-        result = subprocess.run(
+        result = run_app(
             [sys.executable, str(ROOT / "src/main.py"), str(path)],
             capture_output=True, text=True, encoding="utf-8",
             env=dict(os.environ, PYTHONIOENCODING="utf-8"),
@@ -134,16 +136,14 @@ class CargoTests(unittest.TestCase):
                       version="1.0.0", output="graph.svg")
         config["reverse_package"] = "leaf@0.1.2"
         path.write_text(json.dumps(config), "utf-8")
-        result = subprocess.run(
+        result = run_app(
             [sys.executable, str(ROOT / "src/main.py"), str(path)],
             capture_output=True, text=True, encoding="utf-8",
             env=dict(os.environ, PYTHONIOENCODING="utf-8"),
         )
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.splitlines(), [
-            "Обратные зависимости leaf@0.1.2:", "mid@1.1.0", "demo@1.0.0",
-        ])
-        self.assertFalse((self.base / "graph.svg").exists())
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("reverse_package", result.stderr)
 
 
 if __name__ == "__main__":

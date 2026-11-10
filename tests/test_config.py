@@ -8,6 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from cli_support import run_app
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -23,7 +25,9 @@ class ConfigTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.base = Path(self.temp.name)
         self.path = self.base / "config.json"
-        self.data = json.loads((ROOT / "config.json").read_text("utf-8"))
+        self.data = dict(package="serde", version="1.0.210",
+                         repository="https://index.crates.io",
+                         test_mode=False, output="graph.svg")
 
     def save(self, data):
         """Записать конфигурацию для проверки."""
@@ -31,7 +35,7 @@ class ConfigTests(unittest.TestCase):
 
     def run_cli(self):
         """Вызвать приложение из другого рабочего каталога."""
-        return subprocess.run(
+        return run_app(
             [sys.executable, str(ROOT / "src/main.py"), str(self.path)],
             cwd=self.base, capture_output=True, text=True, encoding="utf-8",
             env=self.cli_environment(),

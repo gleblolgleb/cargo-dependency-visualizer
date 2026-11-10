@@ -25,3 +25,7 @@ Thumbs.db
 *.sln.docstates
 *.VC.db
 *.VC.VC.opendb
+tools/
+*.puml
+target/
+*.jar
