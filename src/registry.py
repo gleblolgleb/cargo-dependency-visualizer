@@ -1,6 +1,5 @@
 """Получение прямых зависимостей указанной версии из индекса Cargo."""
 
-import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -29,7 +28,7 @@ def index_path(package):
 def download_index(repository, package):
     """Загрузить индекс одного пакета по HTTP без вызова Cargo."""
     url = repository.rstrip("/") + "/" + index_path(package)
-    request = Request(url, headers={"User-Agent": "Variant27-Stage2"})
+    request = Request(url, headers={"User-Agent": "Variant27-Stage3"})
     try:
         with urlopen(request, timeout=TIMEOUT_SECONDS) as response:
             return response.read().decode("utf-8")
@@ -39,25 +38,6 @@ def download_index(repository, package):
         raise RegistryError(f"Ошибка HTTP: {error.code}.") from error
     except (URLError, OSError, UnicodeError) as error:
         raise RegistryError(f"Не удалось прочитать индекс: {error}") from error
-
-
-def select_version(text, package, version):
-    """Найти запись точно указанной версии в построчном JSON."""
-    for line in text.splitlines():
-        if not line.strip():
-            continue
-        try:
-            entry = json.loads(line)
-        except ValueError as error:
-            raise RegistryError("Индекс содержит неверный JSON.") from error
-        if not isinstance(entry, dict):
-            raise RegistryError("Запись индекса должна быть объектом.")
-        if entry.get("vers") == version:
-            name = entry.get("name")
-            if not isinstance(name, str) or name.lower() != package.lower():
-                raise RegistryError("Имя пакета в индексе не совпадает.")
-            return entry
-    raise RegistryError(f"Версия {package}@{version} не найдена.")
 
 
 def validate_dependencies(entry):
@@ -73,12 +53,3 @@ def validate_dependencies(entry):
             if not isinstance(value, str) or not value.strip():
                 raise RegistryError(f"Зависимость: неверное поле {field}.")
     return dependencies
-
-
-def get_dependencies(config):
-    """Получить прямые зависимости выбранной версии пакета."""
-    if config["test_mode"]:
-        raise RegistryError("Режим тестового графа относится к этапу 3.")
-    text = download_index(config["repository"], config["package"])
-    entry = select_version(text, config["package"], config["version"])
-    return validate_dependencies(entry)

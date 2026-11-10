@@ -127,5 +127,24 @@ class CargoTests(unittest.TestCase):
         self.assertFalse((self.base / "graph.svg").exists())
 
 
+    def test_reverse_cli(self):
+        """Построить полный граф через CLI без создания SVG."""
+        path = self.base / "config.json"
+        config = dict(package="demo", repository=self.url, test_mode=False,
+                      version="1.0.0", output="graph.svg")
+        config["reverse_package"] = "leaf@0.1.2"
+        path.write_text(json.dumps(config), "utf-8")
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "src/main.py"), str(path)],
+            capture_output=True, text=True, encoding="utf-8",
+            env=dict(os.environ, PYTHONIOENCODING="utf-8"),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), [
+            "Обратные зависимости leaf@0.1.2:", "mid@1.1.0", "demo@1.0.0",
+        ])
+        self.assertFalse((self.base / "graph.svg").exists())
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -50,7 +50,9 @@ def check_fields(data):
         if name not in data:
             raise ConfigError(f"Отсутствует параметр: {name}.")
         check_field(name, data[name])
-    unknown = set(data) - set(PARAMETERS)
+    if "reverse_package" in data:
+        check_field("reverse_package", data["reverse_package"])
+    unknown = set(data) - set(PARAMETERS) - {"reverse_package"}
     if unknown:
         names = ", ".join(sorted(unknown))
         raise ConfigError(f"Неизвестные параметры: {names}.")

@@ -37,13 +37,19 @@ def validate_test_graph(graph):
     return graph
 
 
-def load_test_graph(config, filename):
-    """Прочитать тестовый файл относительно каталога конфигурации."""
+def read_test_repository(config, filename):
+    """Прочитать и проверить весь тестовый репозиторий."""
     path = local_path(config["repository"], Path(filename).parent)
     try:
         graph = validate_test_graph(read_json(path))
     except ConfigError as error:
         raise GraphError(str(error)) from error
+    return graph
+
+
+def load_test_graph(config, filename):
+    """Построить достижимый граф тестового репозитория."""
+    graph = read_test_repository(config, filename)
     root = config["package"]
     if root not in graph:
         raise GraphError(f"Корневой пакет {root} отсутствует в репозитории.")
