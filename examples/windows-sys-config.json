@@ -1,0 +1,7 @@
+{
+  "package": "windows-sys",
+  "repository": "https://index.crates.io",
+  "test_mode": false,
+  "version": "0.59.0",
+  "output": "../demonstration/windows-sys.svg"
+}

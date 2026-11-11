@@ -1,0 +1,7 @@
+{
+  "package": "windows-targets",
+  "repository": "https://index.crates.io",
+  "test_mode": false,
+  "version": "0.52.6",
+  "output": "../demonstration/windows-targets.svg"
+}
