@@ -1,7 +1,7 @@
 {
-  "package": "A",
-  "repository": "examples/repository.json",
-  "test_mode": true,
-  "version": "1.0.0",
-  "output": "demonstration/A.svg"
+  "package": "windows-sys",
+  "repository": "https://index.crates.io",
+  "test_mode": false,
+  "version": "0.59.0",
+  "output": "graph.svg"
 }
