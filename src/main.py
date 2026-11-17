@@ -28,7 +28,7 @@ def get_graph(config, filename):
         return load_test_graph(config, filename)
     source = CargoSource(config["repository"])
     root = config["package"].lower(), config["version"]
-    return build_graph(root, source.children)
+    return build_graph(root, source.children, config.get("max_depth"))
 
 
 def format_result(config, graph):
@@ -36,6 +36,8 @@ def format_result(config, graph):
     lines = []
     for node, children in graph.items():
         targets = ", ".join(map(node_label, children)) or "(нет зависимостей)"
+        if node in getattr(graph, "truncated", ()):
+            targets = "(предел глубины)"
         lines.append(f"{node_label(node)} -> {targets}")
     return lines
 

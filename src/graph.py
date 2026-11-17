@@ -10,17 +10,35 @@ class GraphError(ValueError):
     """Ошибка структуры графа или корневого пакета."""
 
 
-def build_graph(root, children):
-    """Построить достижимый граф DFS со стеком, сохраняя ребра циклов."""
-    graph = {}
-    stack = [root]
+class DependencyGraph(dict):
+    """Список смежности с отметкой нераскрытых граничных узлов."""
+
+    def __init__(self):
+        """Создать пустой граф и набор граничных узлов."""
+        super().__init__()
+        self.truncated = set()
+
+
+def build_graph(root, children, max_depth=None):
+    """Выполнить DFS без рекурсии с ограничением расстояния от корня."""
+    graph = DependencyGraph()
+    depths, expanded = {}, set()
+    stack = [(root, 0)]
     while stack:
-        node = stack.pop()
-        if node in graph:
+        node, depth = stack.pop()
+        if node in depths and depth >= depths[node]:
             continue
-        neighbors = list(dict.fromkeys(children(node)))
-        graph[node] = neighbors
-        stack.extend(reversed(neighbors))
+        depths[node] = depth
+        graph.setdefault(node, [])
+        if max_depth is not None and depth >= max_depth:
+            if node not in expanded:
+                graph.truncated.add(node)
+            continue
+        graph.truncated.discard(node)
+        if node not in expanded:
+            graph[node] = list(dict.fromkeys(children(node)))
+            expanded.add(node)
+        stack.extend((child, depth + 1) for child in reversed(graph[node]))
     return graph
 
 
@@ -53,4 +71,4 @@ def load_test_graph(config, filename):
     root = config["package"]
     if root not in graph:
         raise GraphError(f"Корневой пакет {root} отсутствует в репозитории.")
-    return build_graph(root, graph.__getitem__)
+    return build_graph(root, graph.__getitem__, config.get("max_depth"))

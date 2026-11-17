@@ -2,7 +2,7 @@
 
 import os
 import subprocess
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as element_tree
 from pathlib import Path
 
 RENDER_TIMEOUT = 60
@@ -24,7 +24,10 @@ def plantuml_text(graph):
     aliases = {node: f"n{index}" for index, node in enumerate(graph)}
     lines = ["@startuml", "!pragma layout smetana"]
     for node, alias in aliases.items():
-        lines.append(f'rectangle "{label(node)}" as {alias}')
+        caption = label(node)
+        if node in getattr(graph, "truncated", ()):
+            caption += r"\n[предел глубины]"
+        lines.append(f'rectangle "{caption}" as {alias}')
     for node, children in graph.items():
         for child in children:
             lines.append(f"{aliases[node]} --> {aliases[child]}")
@@ -48,8 +51,8 @@ def render_svg(text):
     if result.returncode:
         raise VisualizationError("PlantUML завершился с ошибкой.")
     try:
-        root = ET.fromstring(result.stdout)
-    except ET.ParseError as error:
+        root = element_tree.fromstring(result.stdout)
+    except element_tree.ParseError as error:
         raise VisualizationError("PlantUML вернул некорректный SVG.") from error
     if root.tag != SVG_TAG:
         raise VisualizationError("Результат PlantUML не является SVG.")

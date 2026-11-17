@@ -50,10 +50,18 @@ def check_fields(data):
         if name not in data:
             raise ConfigError(f"Отсутствует параметр: {name}.")
         check_field(name, data[name])
-    unknown = set(data) - set(PARAMETERS)
+    if "max_depth" in data:
+        check_depth(data["max_depth"])
+    unknown = set(data) - set(PARAMETERS) - {"max_depth"}
     if unknown:
         names = ", ".join(sorted(unknown))
         raise ConfigError(f"Неизвестные параметры: {names}.")
+
+
+def check_depth(value):
+    """Проверить необязательную неотрицательную целую глубину обхода."""
+    if type(value) is not int or value < 0:
+        raise ConfigError("max_depth: ожидается целое число от 0.")
 
 
 def local_path(value, base):
